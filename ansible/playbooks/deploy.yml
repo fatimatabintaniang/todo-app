@@ -1,0 +1,15 @@
+# ---
+# - hosts: db
+#   become: true
+#   roles:
+#     - db
+
+# - hosts: back
+#   become: true
+#   roles:
+#     - back
+
+# - hosts: front
+#   become: true
+#   roles:
+#     - front

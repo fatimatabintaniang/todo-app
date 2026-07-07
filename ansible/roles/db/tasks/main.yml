@@ -1,0 +1,30 @@
+- name: Créer le dossier de déploiement
+  file:
+    path: /opt/todo-app
+    state: directory
+    mode: '0755'
+
+- name: Créer un .env minimal (requis par docker compose même si non utilisé par frontend)
+  copy:
+    dest: /opt/todo-app/.env
+    content: |
+      POSTGRES_USER=postgres
+      POSTGRES_PASSWORD=placeholder
+      POSTGRES_DB=todo_db
+    mode: '0600'
+
+- name: Copier le docker-compose.yml (source unique à la racine du projet)
+  copy:
+    src: "{{ playbook_dir }}/../../docker-compose.yml"
+    dest: /opt/todo-app/docker-compose.yml
+    mode: '0644'
+
+- name: Puller l'image frontend
+  command: docker compose pull frontend
+  args:
+    chdir: /opt/todo-app
+
+- name: Démarrer le conteneur frontend
+  command: docker compose up -d --no-deps frontend
+  args:
+    chdir: /opt/todo-app
