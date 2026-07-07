@@ -1,0 +1,67 @@
+---
+- name: Mettre à jour le cache apt
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Installer les dépendances nécessaires
+  apt:
+    name:
+      - ca-certificates
+      - curl
+      - gnupg
+      - lsb-release
+    state: present
+
+- name: Créer le répertoire pour les clés GPG
+  file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: '0755'
+
+- name: Ajouter la clé GPG officielle de Docker
+  get_url:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    dest: /etc/apt/keyrings/docker.asc
+    mode: '0644'
+
+- name: Ajouter le repository Docker
+  apt_repository:
+    repo: "deb [arch={{ ansible_architecture | regex_replace('x86_64', 'amd64') }} signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+    state: present
+    filename: docker
+
+- name: Mettre à jour le cache apt après ajout du repo Docker
+  apt:
+    update_cache: yes
+
+- name: Installer Docker Engine, CLI, containerd et le plugin Compose
+  apt:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-buildx-plugin
+      - docker-compose-plugin
+    state: present
+
+- name: Démarrer et activer le service Docker
+  systemd:
+    name: docker
+    state: started
+    enabled: yes
+
+- name: Ajouter l'utilisateur ubuntu au groupe docker
+  user:
+    name: ubuntu
+    groups: docker
+    append: yes
+
+- name: Vérifier l'installation Docker
+  command: docker --version
+  register: docker_version
+  changed_when: false
+
+- name: Afficher la version de Docker installée
+  debug:
+    var: docker_version.stdout

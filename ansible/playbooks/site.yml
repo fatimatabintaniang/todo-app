@@ -1,0 +1,19 @@
+- hosts: all
+  become: true
+  roles:
+    - common
+
+- hosts: front
+  become: true
+  roles:
+    - front
+
+- hosts: back
+  become: true
+  roles:
+    - back
+
+- hosts: db
+  become: true
+  roles:
+    - db

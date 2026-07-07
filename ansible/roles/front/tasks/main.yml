@@ -1,0 +1,63 @@
+---
+- name: Installer Nginx
+  apt:
+    name: nginx
+    state: present
+    update_cache: yes
+
+- name: Démarrer et activer Nginx
+  systemd:
+    name: nginx
+    state: started
+    enabled: yes
+
+- name: Installer Certbot et le plugin Nginx
+  apt:
+    name:
+      - certbot
+      - python3-certbot-nginx
+    state: present
+
+- name: Copier la configuration Nginx du domaine
+  template:
+    src: todo-app.conf.j2
+    dest: /etc/nginx/sites-available/todo-app.conf
+    mode: '0644'
+  notify: Reload nginx
+
+- name: Activer le site (lien symbolique sites-enabled)
+  file:
+    src: /etc/nginx/sites-available/todo-app.conf
+    dest: /etc/nginx/sites-enabled/todo-app.conf
+    state: link
+  notify: Reload nginx
+
+- name: Désactiver le site par défaut
+  file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+  notify: Reload nginx
+
+- name: Vérifier la configuration Nginx
+  command: nginx -t
+  register: nginx_test
+  changed_when: false
+
+- name: Afficher le résultat du test Nginx
+  debug:
+    var: nginx_test.stderr_lines
+
+- name: Générer le certificat HTTPS avec Certbot
+  command: >
+    certbot --nginx
+    -d {{ domain_name }}
+    --non-interactive
+    --agree-tos
+    -m {{ admin_email }}
+    --redirect
+  register: certbot_result
+  changed_when: "'Congratulations' in certbot_result.stdout or 'Successfully' in certbot_result.stdout"
+
+- name: Afficher le résultat de Certbot
+  debug:
+    var: certbot_result.stdout_lines
