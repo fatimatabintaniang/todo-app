@@ -314,3 +314,17 @@ resource "aws_route_table_association" "private_assoc" {
 }
 
 
+resource "aws_eip" "front_eip" {
+  instance = aws_instance.front.id
+  domain   = "vpc"
+
+  tags = {
+    Name = "todo-front-eip"
+  }
+}
+
+output "front_eip" {
+  value = aws_eip.front_eip.public_ip
+}
+
+
