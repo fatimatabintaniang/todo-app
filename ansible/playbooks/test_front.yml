@@ -1,5 +1,0 @@
-# ---
-# - hosts: front
-#   become: true
-#   roles:
-#     - front
