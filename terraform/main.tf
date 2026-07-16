@@ -12,7 +12,7 @@ provider "aws" {
 }
 
 # =========================
-# AMI UBUNTU STABLE
+# AMI UBUNTU STABLE (Il interroge AWS pour trouver la derniere AMI)
 # =========================
 data "aws_ami" "ubuntu" {
   most_recent = true
@@ -35,7 +35,7 @@ data "aws_ami" "ubuntu" {
 }
 
 # =========================
-# VPC
+# VPC (Virtual Private Cloud), un reseau prive isole dans le cloud AWS
 # =========================
 resource "aws_vpc" "todo_vpc" {
   cidr_block           = "10.0.0.0/16"
@@ -72,7 +72,7 @@ resource "aws_subnet" "private_subnet" {
 }
 
 # =========================
-# INTERNET GATEWAY
+# INTERNET GATEWAY(composant qui permet au VPC de communiquer avec Internet , il permet aussi au subnets public d'acceder a internet)
 # =========================
 resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.todo_vpc.id
@@ -293,7 +293,7 @@ resource "aws_nat_gateway" "nat" {
 }
 
 # =========================
-# ROUTE TABLE PRIVÉE
+# ROUTE TABLE PRIVÉE(Les instances privées peuvent télécharger des packages, mais ne sont pas directement accessibles depuis Internet)
 # =========================
 resource "aws_route_table" "private_rt" {
   vpc_id = aws_vpc.todo_vpc.id
