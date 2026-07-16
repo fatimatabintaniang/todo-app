@@ -129,7 +129,7 @@ resource "aws_security_group" "front_sg" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["102.164.188.83/32"]
+    cidr_blocks = ["196.207.231.35/32"]
   }
 
   egress {
